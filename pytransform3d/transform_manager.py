@@ -3,13 +3,20 @@
 See :doc:`transform_manager` for more information.
 """
 import numpy as np
+
+from compatibility import (
+    import_optional_dependency,
+    scipy_module,
+    OptionalImportErrorHandling,
+    pydot_module,
+)
+
+import_optional_dependency(
+    scipy_module, error_handling=OptionalImportErrorHandling.RAISE
+)
+
 import scipy.sparse as sp
 from scipy.sparse import csgraph
-try:  # pragma: no cover
-    import pydot
-    PYDOT_AVAILABLE = True
-except ImportError:
-    PYDOT_AVAILABLE = False
 from .transformations import (check_transform, invert_transform, concat,
                               plot_transform)
 
@@ -465,8 +472,10 @@ class TransformManager(object):
         ImportError
             If pydot is not available
         """
-        if not PYDOT_AVAILABLE:
-            raise ImportError("pydot must be installed to use this feature.")
+        pydot = import_optional_dependency(
+            pydot_module, error_handling=OptionalImportErrorHandling.RAISE
+        )
+        assert pydot
 
         graph = pydot.Dot(graph_type="graph")
         frame_color = "#dd3322"
