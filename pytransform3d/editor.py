@@ -1,27 +1,32 @@
 """Modify transformations visually."""
 qt_available = False
 qt_version = None
-try:
+
+from .compatibility import (
+    matplotlib_module,
+    pyqt4_module,
+    pyqt5_module,
+    import_optional_dependency,
+    OptionalImportErrorHandling,
+)
+
+if pyqt5_module.is_installed:
     import PyQt5.QtCore as QtCore
     from PyQt5.QtWidgets import (
         QApplication, QMainWindow, QWidget, QSlider, QDoubleSpinBox,
         QGridLayout, QLabel, QGroupBox, QHBoxLayout, QComboBox, QVBoxLayout)
     qt_available = True
     qt_version = 5
-except ImportError:
-    try:
-        import PyQt4.QtCore as QtCore
-        from PyQt4.QtGui import (
-            QApplication, QMainWindow, QWidget, QSlider, QDoubleSpinBox,
-            QGridLayout, QLabel, QGroupBox, QHBoxLayout, QComboBox,
-            QVBoxLayout)
-        qt_available = True
-        qt_version = 4
-    except ImportError:
-        import warnings
-        warnings.warn(
-            "Cannot import PyQt. TransformEditor won't be available.")
-        TransformEditor = None
+elif pyqt4_module.is_installed:
+    import PyQt4.QtCore as QtCore
+    from PyQt4.QtGui import (
+        QApplication, QMainWindow, QWidget, QSlider, QDoubleSpinBox,
+        QGridLayout, QLabel, QGroupBox, QHBoxLayout, QComboBox,
+        QVBoxLayout)
+    qt_available = True
+    qt_version = 4
+else:
+    TransformEditor = None
 
 
 if qt_available:
@@ -33,8 +38,12 @@ if qt_available:
     from .rotations import (active_matrix_from_intrinsic_euler_xyz,
                             intrinsic_euler_xyz_from_active_matrix)
     from .transformations import transform_from
-    from mpl_toolkits.mplot3d import Axes3D
+
+    import_optional_dependency(
+        matplotlib_module, error_handling=OptionalImportErrorHandling.RAISE
+    )
     from matplotlib.figure import Figure
+
     if qt_version == 5:
         from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
         from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT
