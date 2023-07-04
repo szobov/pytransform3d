@@ -4,6 +4,12 @@ from ..rotations import (
     cross_product_matrix, left_jacobian_SO3, left_jacobian_SO3_inv)
 from ._conversions import screw_axis_from_exponential_coordinates
 from ._utils import check_exponential_coordinates
+from ..compatibility import (
+    scipy_module,
+    import_optional_dependency,
+    OptionalImportErrorHandling,
+)
+
 
 
 def left_jacobian_SE3(Stheta):
@@ -186,13 +192,14 @@ def left_jacobian_SE3_inv_series(Stheta, n_terms):
     J_inv : array, shape (3, 3)
         Inverse left Jacobian of SE(3).
     """
-    from scipy.special import bernoulli
+    scipy = import_optional_dependency(scipy_module, error_handling=OptionalImportErrorHandling.RAISE)
+    assert scipy
 
     Stheta = check_exponential_coordinates(Stheta)
     J_inv = np.eye(6)
     pxn = np.eye(6)
     px = _curlyhat(Stheta)
-    b = bernoulli(n_terms + 1)
+    b = scipy.special.bernoulli(n_terms + 1)
     for n in range(n_terms):
         pxn = np.dot(pxn, px / (n + 1))
         J_inv += b[n + 1] * pxn
