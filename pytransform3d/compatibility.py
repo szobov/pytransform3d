@@ -119,11 +119,14 @@ sphinx_gallery_module = PythonDependency("sphinx-gallery")
 sphinx_bootstrap_theme_module = PythonDependency("sphinx-bootstrap-theme")
 pytest_module = PythonDependency("pytest")
 pytest_cov_module = PythonDependency("pytest-cov")
+pyqt4_module = PythonDependency("PyQt4")
+pyqt5_module = PythonDependency("PyQt5")
 
 
 _optional_dependencies = {
     "plotting_2d": (matplotlib_module,),
     "plotting_3d": (trimesh_module,),
+    "editor": (pyqt5_module, matplotlib_module),
     "urdf": (beatifulsoap4_module, lxml_module),
     "rendering": (opend3d_module,),
     "transform_manager": (scipy_module,),
