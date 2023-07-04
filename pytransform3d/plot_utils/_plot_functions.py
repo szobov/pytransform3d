@@ -6,6 +6,12 @@ from ._layout import make_3d_axis
 from ._artists import Arrow3D
 from ..transformations import transform, vectors_to_points
 from ..rotations import unitx, unitz, perpendicular_to_vectors, norm_vector
+from ..compatibility import (
+    import_optional_dependency,
+    trimesh_module,
+    get_optional_dependencies_for_setup_py,
+    OptionalImportErrorHandling,
+)
 
 
 def plot_box(ax=None, size=np.ones(3), A2B=np.eye(4), ax_s=1, wireframe=True,
@@ -364,11 +370,9 @@ def plot_mesh(ax=None, filename=None, A2B=np.eye(4),
             "package directory.")
         return ax
 
-    try:
-        import trimesh
-    except ImportError:
-        warnings.warn(
-            "Cannot display mesh. Library 'trimesh' not installed.")
+    trimesh = import_optional_dependency(trimesh_module, error_handling=OptionalImportErrorHandling.WARN)
+    assert trimesh
+    if not trimesh_module.is_installed:
         return ax
 
     mesh = trimesh.load(filename)
