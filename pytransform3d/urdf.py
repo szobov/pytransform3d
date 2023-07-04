@@ -5,7 +5,20 @@ See :doc:`transform_manager` for more information.
 import os
 import numpy as np
 import warnings
-from bs4 import BeautifulSoup
+
+from .compatibility import (
+    OptionalImportErrorHandling,
+    beatifulsoap4_module,
+    import_optional_dependency,
+    lxml_module,
+)
+
+bs4 = import_optional_dependency(
+    beatifulsoap4_module, error_handling=OptionalImportErrorHandling.RAISE
+)
+import_optional_dependency(lxml_module, error_handling=OptionalImportErrorHandling.RAISE)
+assert bs4
+
 from .transform_manager import TransformManager
 from .transformations import transform_from, concat
 from .rotations import (
@@ -326,7 +339,7 @@ def parse_urdf(urdf_xml, mesh_path=None, package_dir=None, strict_check=True):
     UrdfException
         If URDF is not valid
     """
-    urdf = BeautifulSoup(urdf_xml, "xml")
+    urdf = bs4.BeautifulSoup(urdf_xml, "xml")
 
     # URDF XML schema:
     # https://github.com/ros/urdfdom/blob/master/xsd/urdf.xsd
