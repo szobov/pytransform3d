@@ -7,6 +7,11 @@ from .transformations import (
 from .trajectories import (exponential_coordinates_from_transforms,
                            transforms_from_exponential_coordinates,
                            concat_many_to_one)
+from .compatibility import (
+    scipy_module,
+    import_optional_dependency,
+    OptionalImportErrorHandling,
+)
 
 
 def estimate_gaussian_transform_from_samples(samples):
@@ -404,8 +409,9 @@ def to_ellipsoid(mean, cov):
         Radii of ellipsoid, coinciding with standard deviations along the
         three axes of the ellipsoid. These are sorted in ascending order.
     """
-    from scipy import linalg
-    radii, R = linalg.eigh(cov)
+    scipy = import_optional_dependency(scipy_module, error_handling=OptionalImportErrorHandling.RAISE)
+    assert scipy
+    radii, R = scipy.linalg.eigh(cov)
     if np.linalg.det(R) < 0:  # undo reflection (exploit symmetry)
         R *= -1
     ellipsoid2origin = transform_from(R=R, p=mean)
@@ -443,8 +449,9 @@ def to_projected_ellipsoid(mean, cov, factor=1.96, n_steps=20):
     z : array, shape (n_steps, n_steps)
         Coordinates on z-axis of grid on projected ellipsoid.
     """
-    from scipy import linalg
-    vals, vecs = linalg.eigh(cov)
+    scipy = import_optional_dependency(scipy_module, error_handling=OptionalImportErrorHandling.RAISE)
+    assert scipy
+    vals, vecs = scipy.linalg.eigh(cov)
     order = vals.argsort()[::-1]
     vals, vecs = vals[order], vecs[:, order]
 
