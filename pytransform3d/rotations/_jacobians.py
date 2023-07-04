@@ -1,6 +1,12 @@
 import math
 import numpy as np
 from ._conversions import cross_product_matrix
+from ..compatibility import (
+    scipy_module,
+    import_optional_dependency,
+    OptionalImportErrorHandling,
+)
+
 
 
 def left_jacobian_SO3(omega):
@@ -117,13 +123,14 @@ def left_jacobian_SO3_inv_series(omega, n_terms):
     J_inv : array, shape (3, 3)
         Inverse left Jacobian of SO(3).
     """
-    from scipy.special import bernoulli
+    scipy = import_optional_dependency(scipy_module, error_handling=OptionalImportErrorHandling.RAISE)
+    assert scipy
 
     omega = np.asarray(omega)
     J_inv = np.eye(3)
     pxn = np.eye(3)
     px = cross_product_matrix(omega)
-    b = bernoulli(n_terms + 1)
+    b = scipy.special.bernoulli(n_terms + 1)
     for n in range(n_terms):
         pxn = np.dot(pxn, px / (n + 1))
         J_inv += b[n + 1] * pxn
